@@ -12,22 +12,22 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # Carregando todos os arquivos BATIMÉTRICOS de todas as resoluções.
-df_bat_2m = pd.read_csv("C:\DCPS\GitHub\MapeamentoIA_IH_JEH\dados brutos\Madeira_13e14_WGS84_UTM28N_2m.txt",
+df_bat_2m = pd.read_csv("C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\Madeira_13e14_WGS84_UTM28N_2m.txt",
                       skiprows=1,delim_whitespace=True,names=['utmx','utmy','z'])
 df_bat_2m['res'] = '2m'
-df_bat_4m = pd.read_csv("C:\DCPS\GitHub\MapeamentoIA_IH_JEH\dados brutos\Madeira_13e14_WGS84_UTM28N_4m.txt",
+df_bat_4m = pd.read_csv("C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\Madeira_13e14_WGS84_UTM28N_4m.txt",
                       skiprows=1,delim_whitespace=True,names=['utmx','utmy','z'])
 df_bat_4m['res'] = '4m'
-df_bat_8m = pd.read_csv("C:\DCPS\GitHub\MapeamentoIA_IH_JEH\dados brutos\Madeira_13e14_WGS84_UTM28N_8m.txt",
+df_bat_8m = pd.read_csv("C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\Madeira_13e14_WGS84_UTM28N_8m.txt",
                       skiprows=1,delim_whitespace=True,names=['utmx','utmy','z'])
 df_bat_8m['res'] = '8m'
-df_bat_16m = pd.read_csv("C:\DCPS\GitHub\MapeamentoIA_IH_JEH\dados brutos\Madeira_13e14_WGS84_UTM28N_16m.txt",
+df_bat_16m = pd.read_csv("C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\Madeira_13e14_WGS84_UTM28N_16m.txt",
                       skiprows=1,delim_whitespace=True,names=['utmx','utmy','z'])
 df_bat_16m['res'] = '16m'
-df_bat_32m = pd.read_csv("C:\DCPS\GitHub\MapeamentoIA_IH_JEH\dados brutos\Madeira_13e14_WGS84_UTM28N_32m.txt",
+df_bat_32m = pd.read_csv("C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\Madeira_13e14_WGS84_UTM28N_32m.txt",
                       skiprows=1,delim_whitespace=True,names=['utmx','utmy','z'])
 df_bat_32m['res'] = '32m'
-df_bat_64m = pd.read_csv("C:\DCPS\GitHub\MapeamentoIA_IH_JEH\dados brutos\Madeira_13e14_WGS84_UTM28N_64m.txt",
+df_bat_64m = pd.read_csv("C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\Madeira_13e14_WGS84_UTM28N_64m.txt",
                       skiprows=1,delim_whitespace=True,names=['utmx','utmy','z'])
 df_bat_64m['res'] = '64m'
 
@@ -36,7 +36,7 @@ df_bat = pd.concat([df_bat_2m,df_bat_4m,df_bat_8m,df_bat_16m,df_bat_32m,df_bat_6
 del df_bat_2m,df_bat_4m,df_bat_8m,df_bat_16m,df_bat_32m,df_bat_64m
 
 # Carregando dado sísmico
-df_sbp = pd.read_csv(r"C:\DCPS\GitHub\MapeamentoIA_IH_JEH\dados brutos\Thickness_MadeiraNW.txt",sep=';')
+df_sbp = pd.read_csv(r"C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\Thickness_MadeiraNW.txt",sep=';')
 
 # Convertendo de projeção geográfica WGS84 para UTM WGS84
 df_sbp['LATITUDE'] = df_sbp['LATITUDE'].str.replace(',','.')
