@@ -53,20 +53,20 @@ utmx, utmy = myProj(df_sbp.LONGITUDE, df_sbp.LATITUDE)
 df_sbp['utmx'] = utmx
 df_sbp['utmy'] = utmy
 
-# Pegando somente colunas de interesse
+# Pegando somente colunas de interesse da sísmica
 df_sbp = df_sbp[['utmx','utmy','classe']]
 del utmx,utmy
 
-
-
-
-
-#PYKDTREE
+# PYKDTREE - correlacionando sísmica com batimetria
 kd_tree = KDTree(df_bat[['utmx','utmy']].values)
 start = time.time()
 dist, idx = kd_tree.query(df_sbp[df_sbp.classe==0][['utmx','utmy']].values, k=1)
 end = time.time()
 print(end - start)
+
+
+df_sbp['z'] = df_bat.z.iloc[idx].values
+df_sbp['z_dist'] = dist
 
 
 
