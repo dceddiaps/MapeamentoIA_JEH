@@ -10,6 +10,8 @@ import numpy as np
 from pyproj import Proj
 import warnings
 warnings.filterwarnings("ignore")
+from pykdtree.kdtree import KDTree
+import time
 
 # Carregando todos os arquivos BATIMÉTRICOS de todas as resoluções.
 df_bat_2m = pd.read_csv("C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\Madeira_13e14_WGS84_UTM28N_2m.txt",
@@ -43,8 +45,8 @@ df_sbp['LATITUDE'] = df_sbp['LATITUDE'].str.replace(',','.')
 df_sbp['LATITUDE'] = df_sbp['LATITUDE'].astype("float")
 df_sbp['LONGITUDE'] = df_sbp['LONGITUDE'].str.replace(',','.')
 df_sbp['LONGITUDE'] = df_sbp['LONGITUDE'].astype("float")
-df_sbp['classe'] = '1'
-df_sbp['classe'][df_sbp[df_sbp['THICKNESS_']!=0].index] = '0'
+df_sbp['classe'] = 1
+df_sbp['classe'][df_sbp[df_sbp['THICKNESS_']!=0].index] = 0
 
 myProj = Proj("+proj=utm +zone=28 +north +ellps=WGS84 +datum=WGS84 +units=m")
 utmx, utmy = myProj(df_sbp.LONGITUDE, df_sbp.LATITUDE) 
@@ -59,7 +61,12 @@ del utmx,utmy
 
 
 
-
+#PYKDTREE
+kd_tree = KDTree(df_bat[['utmx','utmy']].values)
+start = time.time()
+dist, idx = kd_tree.query(df_sbp[df_sbp.classe==0][['utmx','utmy']].values, k=1)
+end = time.time()
+print(end - start)
 
 
 
