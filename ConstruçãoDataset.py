@@ -45,6 +45,8 @@ df_sbp['LATITUDE'] = df_sbp['LATITUDE'].str.replace(',','.')
 df_sbp['LATITUDE'] = df_sbp['LATITUDE'].astype("float")
 df_sbp['LONGITUDE'] = df_sbp['LONGITUDE'].str.replace(',','.')
 df_sbp['LONGITUDE'] = df_sbp['LONGITUDE'].astype("float")
+df_sbp['THICKNESS_'] = df_sbp['THICKNESS_'].str.replace(',','.')
+df_sbp['THICKNESS_'] = df_sbp['THICKNESS_'].astype("float")
 df_sbp['classe'] = 1
 df_sbp['classe'][df_sbp[df_sbp['THICKNESS_']!=0].index] = 0
 
@@ -57,16 +59,40 @@ df_sbp['utmy'] = utmy
 df_sbp = df_sbp[['utmx','utmy','classe']]
 del utmx,utmy
 
-# PYKDTREE - correlacionando sísmica com batimetria
+# Carregando dados de backscatter
+df_bs = pd.read_csv(r"C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\backscatter.xyz",
+                    names = ['utmx','utmy','bs'])
+
+# PYKDTREE
+
+# Correlacionando sísmica com batimetria
 kd_tree = KDTree(df_bat[['utmx','utmy']].values)
 start = time.time()
-dist, idx = kd_tree.query(df_sbp[df_sbp.classe==0][['utmx','utmy']].values, k=1)
+dist, idx = kd_tree.query(df_sbp[['utmx','utmy']].values, k=1)
 end = time.time()
 print(end - start)
 
+# Salvando correlação de batimetria no dataset final
+data = df_sbp
+data['z'] = df_bat.z.iloc[idx].values
+data['z_res'] = df_bat.res.iloc[idx].values
+data['z_dist'] = dist
 
-df_sbp['z'] = df_bat.z.iloc[idx].values
-df_sbp['z_dist'] = dist
+# Correlacionando sísmica com backscatter
+kd_tree = KDTree(df_bs[['utmx','utmy']].values)
+start = time.time()
+dist, idx = kd_tree.query(df_sbp[['utmx','utmy']].values, k=1)
+end = time.time()
+print(end - start)
+
+# Salvando correlação de batimetria no dataset final
+data['bs'] = df_bs.bs.iloc[idx].values
+data['bs_dist'] = dist
+
+
+
+
+
 
 
 
