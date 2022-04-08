@@ -12,6 +12,7 @@ import warnings
 warnings.filterwarnings("ignore")
 from pykdtree.kdtree import KDTree
 import time
+from scipy.spatial.distance import cdist
 
 # Carregando todos os arquivos BATIMÉTRICOS de todas as resoluções.
 df_bat_2m = pd.read_csv("C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\Madeira_13e14_WGS84_UTM28N_2m.txt",
@@ -37,7 +38,7 @@ df_bat_64m['res'] = '64m'
 df_bat = pd.concat([df_bat_2m,df_bat_4m,df_bat_8m,df_bat_16m,df_bat_32m,df_bat_64m,],axis=0)
 del df_bat_2m,df_bat_4m,df_bat_8m,df_bat_16m,df_bat_32m,df_bat_64m
 
-# Carregando dado sísmico
+# Carregando dado SÍSMICO
 df_sbp = pd.read_csv(r"C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\Thickness_MadeiraNW.txt",sep=';')
 
 # Convertendo de projeção geográfica WGS84 para UTM WGS84
@@ -59,9 +60,25 @@ df_sbp['utmy'] = utmy
 df_sbp = df_sbp[['utmx','utmy','classe']]
 del utmx,utmy
 
-# Carregando dados de backscatter
-df_bs = pd.read_csv(r"C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\backscatter.xyz",
+# Carregando dados de BACKSCATTER
+df_bs = pd.read_csv(r"C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\backscatter.txt",
                     names = ['utmx','utmy','bs'])
+
+# Carregando dados de DECLIVIDADE DO FUNDO
+df_sl = pd.read_csv(r"C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\slope.xyz",
+                    names = ['utmx','utmy','sl'])
+
+# Carregando dados de ORIENTAÇÃO DA DECLIVIDADE DO FUNDO
+df_as = pd.read_csv(r"C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\aspect.xyz",
+                    names = ['utmx','utmy','as'])
+
+# Carregando dados da DECLIVIDADE SUBMARINA
+df_ds = pd.read_csv(r"C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\declive submarino.txt",
+                    usecols=[0,1],names = ['utmx','utmy'])
+
+# Carregando dados de LINHA DE COSTA
+df_lc = pd.read_csv(r"C:\DCPS\GitHub\Dados_MapeamentoIA_JEH\linha de costa.txt",
+                    usecols=[0,1],names = ['utmx','utmy'])
 
 # PYKDTREE
 
@@ -89,14 +106,41 @@ print(end - start)
 data['bs'] = df_bs.bs.iloc[idx].values
 data['bs_dist'] = dist
 
+# Correlacionando sísmica com declividade do fundo
+kd_tree = KDTree(df_sl[['utmx','utmy']].values)
+start = time.time()
+dist, idx = kd_tree.query(df_sbp[['utmx','utmy']].values, k=1)
+end = time.time()
+print(end - start)
 
+# Salvando correlação de declividade do fundo no dataset final
+data['sl'] = df_sl.sl.iloc[idx].values
+data['sl_dist'] = dist
 
+# Correlacionando sísmica com orientação da declividade do fundo
+kd_tree = KDTree(df_as[['utmx','utmy']].values)
+start = time.time()
+dist, idx = kd_tree.query(df_sbp[['utmx','utmy']].values, k=1)
+end = time.time()
+print(end - start)
 
+# Salvando correlação de declividade do fundo no dataset final
+data['as'] = df_as['as'].iloc[idx].values
+data['as_dist'] = dist
 
+# DISTANCIA EUCLIDIANA DA LINHA DE COSTA
+dist = cdist(data[['utmx','utmy']],df_lc,metric='euclidean')
+np.argpartition(np.transpose(dist[:,0]),1)[0]
+data['dist_costa'] = -999
+for i in range(len(dist)):
+    data['dist_costa'].iloc[i] = np.min(dist[i,:])
 
-
-
-
+# DISTANCIA EUCLIDIANA DO DECLIVE SUBMARINO
+dist = cdist(data[['utmx','utmy']],df_ds,metric='euclidean')
+np.argpartition(np.transpose(dist[:,0]),1)[0]
+data['dist_declivesub'] = -999
+for i in range(len(dist)):
+    data['dist_declivesub'].iloc[i] = np.min(dist[i,:])
 
 
 
